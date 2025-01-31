@@ -1,14 +1,19 @@
 import tkinter as tk
-from tkinter import PhotoImage
-from home_page import create_home_page
+from home_page import create_home_page  # Zorg ervoor dat home_page.py correct wordt geïmporteerd
+from game_page import create_game_page  # Zorg ervoor dat game_page.py correct wordt geïmporteerd
 
-# Root window   
-root = tk.Tk()
-root.title("Blackjack")
-root.geometry("800x600")
+def main():
+    # Maak het hoofdvenster van de toepassing
+    root = tk.Tk()
+    root.title("Blackjack Game")  # Geef het venster een titel
+    root.geometry("800x600")  # Pas de grootte van het venster aan
+    root.configure(bg="darkgreen")  # Zet de achtergrondkleur van het venster
+    
+    # Start de homepagina
+    create_home_page(root)
+    
+    # Start de GUI
+    root.mainloop()
 
-
-# Laad de Home-pagina als eerste
-create_home_page(root)
-
-root.mainloop()
+if __name__ == "__main__":
+    main()

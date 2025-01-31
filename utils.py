@@ -16,14 +16,13 @@ def load_card_images():
     card_images = {}
     for suit in suits:
         for rank in ranks:
-            # Zet de rank om naar een 2-cijferig getal, zoals 02, 03, ...
             rank_index = ranks.index(rank) + 2  # Voeg 2 toe omdat de ranglijst start bij '2'
-            rank_str = str(rank_index).zfill(2)
+            rank_str = str(rank_index).zfill(2)  # Maak de rank 2-cijferig
             
             # Maak de afbeelding naam op basis van de naam van de kaart
             card_name = f"card_{suit.lower()}_{rank_str}.png"
-            card_path = f"cards/{card_name}"  # Verander hier naar 'cards/' zonder 'assets/'
-            
+            card_path = f"cards/{card_name}"  # Verander hier naar 'cards/'
+
             try:
                 # Open en resize de afbeelding
                 image = Image.open(card_path).resize((75, 100))
@@ -32,7 +31,6 @@ def load_card_images():
                 print(f"⚠️ Waarschuwing: {card_name} niet gevonden. Deze kaart wordt overgeslagen.")
     
     return card_images
-
 
 # ✅ Opgelost: deal_card() accepteert nu een hand als argument
 def deal_card(hand):

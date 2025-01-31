@@ -1,113 +1,131 @@
 import tkinter as tk
 from tkinter import messagebox
-from utils import load_card_images, deal_card, calculate_score
+from PIL import Image, ImageTk
+import random
 
-def hit(game_frame):
-    """Handles the 'Hit' action by adding a card to the player's hand."""
-    player_hand = game_frame.player_hand
-    card = deal_card(player_hand)  # Deel een kaart aan de speler
+# Functies voor kaartdealen en scoreberekeningen
+def load_card_images():
+    suits = ['hearts', 'diamonds', 'clubs', 'spades']
+    values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+    
+    card_images = {}
+    
+    for suit in suits:
+        for value in values:
+            image_path = f"assets/card_{suit}_{value}.png"
+            image = Image.open(image_path)
+            card_images[f"{value}_of_{suit}"] = ImageTk.PhotoImage(image)
+    
+    return card_images
+
+def deal_card(hand, card_images):
+    card_values = list(card_images.keys())
+    card = random.choice(card_values)
+    hand.append(card)
+    return card
+
+def calculate_score(hand):
+    score = 0
+    aces = 0
+    for card in hand:
+        value = card.split('_')[0]  # Haal de waarde van de kaart uit
+        if value in ['J', 'Q', 'K']:
+            score += 10
+        elif value == 'A':
+            aces += 1
+            score += 11
+        else:
+            score += int(value)
+    
+    # Verwerk de Azen (als 11 of 1)
+    while score > 21 and aces:
+        score -= 10
+        aces -= 1
+    
+    return score
+
+# Hoofdgame pagina
+def hit(game_frame, player_hand, card_images, player_frame):
+    card = deal_card(player_hand, card_images)
     score = calculate_score(player_hand)
     
-    # Zoek de afbeelding van de kaart op basis van de naam
-    card_image = game_frame.card_images.get(card)
+    # Laad de afbeelding van de kaart
+    card_image = card_images[card]
     
-    if card_image:
-        # Voeg de afbeelding van de kaart toe aan de speler
-        player_card_label = tk.Label(game_frame.player_frame, image=card_image, bg="green")
-        player_card_label.image = card_image  # Bewaar referentie naar het beeld
-        player_card_label.pack(side="left", padx=10)
-
-    # Update de score van de speler
-    game_frame.score_label.config(text=f"Score: {score}")
-
-    if score > 21:
-        messagebox.showinfo("Game Over", "You busted! Dealer wins.")
-
-def stand(game_frame):
-    """Handles the 'Stand' action by ending the player's turn."""
-    dealer_hand = game_frame.dealer_hand
-    score = calculate_score(dealer_hand)
-    
-    # Dealer neemt kaarten totdat de score minstens 17 is
-    while score < 17:
-        card = deal_card(dealer_hand)
-        card_image = game_frame.card_images.get(card)
-        if card_image:
-            dealer_card_label = tk.Label(game_frame.dealer_frame, image=card_image, bg="green")
-            dealer_card_label.image = card_image
-            dealer_card_label.pack(side="left", padx=10)
-        score = calculate_score(dealer_hand)
-    
-    dealer_score_label = tk.Label(game_frame.dealer_frame, text=f"Dealer Score: {score}", bg="green", fg="white")
-    dealer_score_label.pack(pady=10)
-    
-    # Controleer de winnaar
-    player_score = calculate_score(game_frame.player_hand)
-    if player_score > 21:
-        messagebox.showinfo("Game Over", "You busted! Dealer wins.")
-    elif score > 21:
-        messagebox.showinfo("Game Over", "Dealer busted! You win!")
-    elif player_score > score:
-        messagebox.showinfo("You Win!", "Your score is higher than the dealer's!")
-    elif player_score < score:
-        messagebox.showinfo("You Lose", "The dealer's score is higher!")
-    else:
-        messagebox.showinfo("Tie", "It's a tie!")
-
-def create_game_page(root):
-    game_frame = tk.Frame(root, bg="green")
-    game_frame.player_hand = []  # Hand van de speler
-    game_frame.dealer_hand = []  # Hand van de dealer
-
-    # Laad de kaarten eenmaal
-    game_frame.card_images = load_card_images()  # Laad alle afbeeldingen van de kaarten
-
-    # Frames voor kaarten en buttons
-    dealer_frame = tk.Frame(game_frame, bg="green")
-    dealer_frame.pack(pady=10)
-
-    game_frame.player_frame = tk.Frame(game_frame, bg="green")  # Dit frame bevat de kaarten van de speler
-    game_frame.player_frame.pack(pady=10)
+    # Voeg de kaart toe aan het spelerframe
+    card_label = tk.Label(player_frame, image=card_image, bg="darkgreen")
+    card_label.image = card_image  # Bewaar de referentie
+    card_label.pack(side="left", padx=10)
 
     # Toon de score van de speler
-    game_frame.score_label = tk.Label(game_frame.player_frame, text="Score: 0", bg="green", fg="white")
-    game_frame.score_label.pack(pady=10)
+    score_label.config(text=f"Player's Score: {score}")
+    
+    if score > 21:
+        messagebox.showinfo("Game Over", "You busted! Dealer wins.")
+        return False  # Eindig het spel
+    return True
 
-    # Buttons
-    button_frame = tk.Frame(game_frame, bg="green")
+def stand(game_frame, dealer_hand, player_hand, card_images, dealer_frame, player_frame):
+    # Verberg de spelersecho en laat de dealer spelen
+    dealer_score = calculate_score(dealer_hand)
+    player_score = calculate_score(player_hand)
+    
+    # Dealer trekt kaarten totdat hij minimaal 17 heeft
+    while dealer_score < 17:
+        card = deal_card(dealer_hand, card_images)
+        card_image = card_images[card]
+        card_label = tk.Label(dealer_frame, image=card_image, bg="darkgreen")
+        card_label.image = card_image
+        card_label.pack(side="left", padx=10)
+        dealer_score = calculate_score(dealer_hand)
+    
+    # Toon scores en bepaal winnaar
+    if dealer_score > 21 or player_score > dealer_score:
+        messagebox.showinfo("Game Over", "You win!")
+    elif dealer_score > player_score:
+        messagebox.showinfo("Game Over", "Dealer wins!")
+    else:
+        messagebox.showinfo("Game Over", "It's a tie!")
+    
+    game_frame.quit()  # Stop het spel
+
+def create_game_page(root):
+    game_frame = tk.Frame(root, bg="darkgreen")
+    
+    # Speler en dealer hand
+    player_hand = []
+    dealer_hand = []
+
+    # Kaartafbeeldingen laden
+    card_images = load_card_images()
+
+    # Frames voor kaarten en knoppen
+    dealer_frame = tk.Frame(game_frame, bg="darkgreen")
+    dealer_frame.pack(pady=10)
+
+    player_frame = tk.Frame(game_frame, bg="darkgreen")
+    player_frame.pack(pady=10)
+
+    # Scorelabels
+    global score_label
+    score_label = tk.Label(game_frame, text="Player's Score: 0", font=("Arial", 16), bg="darkgreen", fg="white")
+    score_label.pack(pady=20)
+
+    # Dealing initial cards
+    deal_card(player_hand, card_images)
+    deal_card(dealer_hand, card_images)
+    deal_card(player_hand, card_images)
+    deal_card(dealer_hand, card_images)
+
+    # Knoppen
+    button_frame = tk.Frame(game_frame, bg="darkgreen")
     button_frame.pack(pady=20)
 
-    hit_button = tk.Button(button_frame, text="Hit", command=lambda: hit(game_frame), bg="white")
+    hit_button = tk.Button(button_frame, text="Hit", command=lambda: hit(game_frame, player_hand, card_images, player_frame), bg="white")
     hit_button.grid(row=0, column=1, padx=5)
 
-    stand_button = tk.Button(button_frame, text="Stand", command=lambda: stand(game_frame), bg="white")
+    stand_button = tk.Button(button_frame, text="Stand", command=lambda: stand(game_frame, dealer_hand, player_hand, card_images, dealer_frame, player_frame), bg="white")
     stand_button.grid(row=0, column=2, padx=5)
 
-    leave_button = tk.Button(button_frame, text="Leave Table", command=lambda: show_home_page(root, game_frame), bg="white")
-    leave_button.grid(row=0, column=3, padx=5)
-
-    # Deel meteen 2 kaarten voor de speler en 1 voor de dealer
-    for _ in range(2):
-        card = deal_card(game_frame.player_hand)
-        card_image = game_frame.card_images.get(card)
-        if card_image:
-            player_card_label = tk.Label(game_frame.player_frame, image=card_image, bg="green")
-            player_card_label.image = card_image
-            player_card_label.pack(side="left", padx=10)
-
-    # Deel de dealer's eerste kaart
-    dealer_card = deal_card(game_frame.dealer_hand)
-    dealer_card_image = game_frame.card_images.get(dealer_card)
-    if dealer_card_image:
-        dealer_card_label = tk.Label(dealer_frame, image=dealer_card_image, bg="green")
-        dealer_card_label.image = dealer_card_image
-        dealer_card_label.pack(side="left", padx=10)
-
-    # Deel de tweede kaart voor de dealer, maar laat deze verborgen
-    dealer_card_back = Image.open("assets/card_back.png").resize((75, 100))  # Zorg voor een omgekeerde kaart
-    dealer_card_back_image = ImageTk.PhotoImage(dealer_card_back)
-    dealer_card_back_label = tk.Label(dealer_frame, image=dealer_card_back_image, bg="green")
-    dealer_card_back_label.image = dealer_card_back_image
-    dealer_card_back_label.pack(side="left", padx=10)
-
     game_frame.pack(fill="both", expand=True)
+
