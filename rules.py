@@ -1,32 +1,22 @@
 import tkinter as tk
+from tkinter import ttk
 
-# Functie voor de spelregels pagina
-def create_rules_page(root):
-    rules_frame = tk.Frame(root, bg="darkgreen")
+class RulesPage(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent, bg="darkgreen")
+        self.controller = controller
 
-    # Titel van de pagina
-    rules_title = tk.Label(rules_frame, text="Spelregels van Blackjack", font=("Arial", 24), bg="darkgreen", fg="white")
-    rules_title.pack(pady=20)
+        title_label = tk.Label(self, text="Blackjack Rules", font=("Arial", 24, "bold"), bg="darkgreen", fg="white")
+        title_label.pack(pady=20)
 
-    # Spelregels tekst
-    rules_text = """Blackjack is een populair kaartspel waarbij je probeert een hand van kaarten te maken die zo dicht mogelijk bij 21 komt, zonder deze waarde te overschrijden.
-    
-1. Elke speler krijgt twee kaarten, en de dealer krijgt ook twee kaarten, maar één van de kaarten is zichtbaar.
-2. Kaarten van 2 tot 10 zijn hun waarde, terwijl de boer, dame en koning als 10 tellen, en een aas als 1 of 11 kan worden gebruikt.
-3. Spelers kunnen kiezen om extra kaarten te trekken ('hit') of te blijven staan ('stand').
-4. Het doel is om de dealer te verslaan zonder meer dan 21 punten te halen."""
+        rules_text = """1. Het doel is om 21 punten te halen zonder eroverheen te gaan.\n
+2. Plaatjes tellen als 10, een Aas telt als 1 of 11.\n
+3. Je kunt 'Hit' kiezen om een extra kaart te nemen of 'Stand' om te stoppen.\n
+4. De dealer speelt na de speler en moet minstens 17 halen.\n
+5. Ga je over de 21? Dan verlies je automatisch."""
+        
+        rules_label = tk.Label(self, text=rules_text, font=("Arial", 14), bg="darkgreen", fg="white", justify="left")
+        rules_label.pack(pady=20, padx=20)
 
-    rules_label = tk.Label(rules_frame, text=rules_text, font=("Arial", 14), bg="darkgreen", fg="white", justify="left")
-    rules_label.pack(pady=20)
-
-    # Terug naar Home knop
-    back_button = tk.Button(rules_frame, text="Terug naar Home", command=lambda: show_home_page(root, rules_frame), bg="white", font=("Arial", 16))
-    back_button.pack(pady=20)
-
-    rules_frame.pack(fill="both", expand=True)
-
-# Functie om terug te keren naar de home pagina
-def show_home_page(root, rules_frame):
-    rules_frame.pack_forget()  # Verberg de regels-pagina
-    from home_page import create_home_page  # Importeer de functie uit home_page.py
-    create_home_page(root)  # Laad de Home-pagina opnieuw
+        back_button = ttk.Button(self, text="Back", command=lambda: controller.show_frame("StartPage"))
+        back_button.pack(pady=10)
