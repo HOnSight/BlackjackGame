@@ -1,51 +1,50 @@
 import tkinter as tk
-from home_page import create_home_page
-from rules import create_rules_page
+from tkinter import ttk
 from package import BettingAppGUI, Player, set_dpi_awareness
+
 
 set_dpi_awareness()
 
+
 class GameInterface(tk.Tk):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.title("Blackjack Game")
         self.geometry("1560x910")
         self.resizable(False, False)
+        self.frames = dict()
 
-        self.frames = {}
+        style = ttk.Style()
+        style.theme_use('vista')
+        style.configure('Custom.TFrame', background='#007700', foreground='#FFFFFF')
+        style.configure('Custom.TButton', font=('Arial', 12), background='#007700')
+        style.configure('Custom.TLabel', background='#007700', font="Arial 14 bold")
 
-        self.show_home_page()
-
-    def show_home_page(self):
-        """Toont de homepagina."""
-        self.clear_frames()
-        self.home_frame = create_home_page(self, self.show_game_page, self.show_rules_page)
-
-    def show_rules_page(self, prev_frame):
-        """Toont de regels en verbergt de vorige pagina."""
-        prev_frame.pack_forget()
-        self.rules_frame = create_rules_page(self, self.show_home_page)
-
-    def show_game_page(self, prev_frame):
-        """Start het spel en verbergt de homepagina."""
-        prev_frame.pack_forget()
-        self.start_game()
-
-    def start_game(self):
-        """Start de Blackjack-game."""
-        container = tk.Frame(self, bg="darkgreen")
+        container = ttk.Frame(self, style="Custom.TFrame")
         container.pack(fill="both", expand=True)
+        container.grid_rowconfigure(0, weight=1)
+        container.grid_columnconfigure(0, weight=1)
 
         self.pl = Player()
+
+        self.initial_bank_value = self.pl.bank
+
+        self.bank_value = self.pl.bank
+        self.bet_amount = 0
+
+        self.hasBetBeenPlaced = False
+        self.roundComplete = False
+
         self.bettingFrame = BettingAppGUI(container, self)
+        self.bettingFrame.configure(height=910)
         self.frames[BettingAppGUI] = self.bettingFrame
         self.bettingFrame.grid(row=0, column=0, sticky="nsew")
 
-    def clear_frames(self):
-        """Verwijdert alle actieve frames."""
-        for widget in self.winfo_children():
-            widget.destroy()
 
-if __name__ == "__main__":
+try:
     game_interface = GameInterface()
     game_interface.mainloop()
+except:
+    import traceback    
+    traceback.print_exc()
+    input("Press Enter to end...")

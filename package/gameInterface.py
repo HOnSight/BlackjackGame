@@ -4,6 +4,7 @@ from PIL import Image, ImageTk
 from package.gameLogic import determineWinner
 
 
+
 class BettingAppGUI(ttk.Frame):
     def __init__(self, container, controller, **kwargs):
         super().__init__(container, **kwargs)
