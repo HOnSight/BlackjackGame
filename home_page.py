@@ -2,14 +2,14 @@ import tkinter as tk
 from PIL import Image, ImageTk
 
 def create_home_page(root):
-    home_frame = tk.Frame(root, bg="lightblue")
+    home_frame = tk.Frame(root, bg="darkgreen")
 
     # Logo
     try:
         logo_image = Image.open("assets/logo.png").resize((200, 200))
         logo_photo = ImageTk.PhotoImage(logo_image)
-        logo_label = tk.Label(home_frame, image=logo_photo, bg="lightblue")
-        logo_label.image = logo_photo  # Bewaar een referentie om garbage collection te voorkomen
+        logo_label = tk.Label(home_frame, image=logo_photo, bg="darkgreen")
+        logo_label.image = logo_photo  # Bewaar referentie
         logo_label.pack(pady=20)
     except FileNotFoundError:
         logo_label = tk.Label(home_frame, text="Logo hier", font=("Arial", 24), bg="lightblue")

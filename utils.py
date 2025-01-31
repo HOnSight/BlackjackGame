@@ -1,17 +1,17 @@
 from PIL import Image, ImageTk
 import random
 
-# Card deck and values
+# Kaartendek en waardes
 suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
 ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King', 'Ace']
-values = {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10,
+values = {'2': 2, '3': 3, '4': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10,
           'Jack': 10, 'Queen': 10, 'King': 10, 'Ace': 11}
 
-# Create and shuffle deck (6 decks)
-deck = [f"{rank} of {suit}" for rank in ranks for suit in suits] * 6  # 6 decks
+# Maak en schud het deck (6 decks)
+deck = [f"{rank} of {suit}" for rank in ranks for suit in suits] * 6
 random.shuffle(deck)
 
-# Load card images
+# Laad kaartafbeeldingen
 def load_card_images():
     card_images = {}
     for suit in suits:
@@ -25,7 +25,7 @@ def load_card_images():
                 print(f"⚠️ Warning: {card_name} not found. Skipping this card.")
     return card_images
 
-# Deal a card
+# ✅ Opgelost: deal_card() accepteert nu een hand als argument
 def deal_card(hand):
     if deck:
         card = deck.pop()
@@ -34,7 +34,7 @@ def deal_card(hand):
     else:
         print("⚠️ Deck is leeg! Shuffle opnieuw nodig.")
 
-# Calculate score
+# Bereken score
 def calculate_score(hand):
     score = sum(values[card.split(' ')[0]] for card in hand)
     aces = sum(1 for card in hand if 'Ace' in card)
