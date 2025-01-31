@@ -13,8 +13,11 @@ def load_card_images():
     for suit in suits:
         for value in values:
             image_path = f"assets/card_{suit}_{value}.png"
-            image = Image.open(image_path)
-            card_images[f"{value}_of_{suit}"] = ImageTk.PhotoImage(image)
+            try:
+                image = Image.open(image_path)
+                card_images[f"{value}_of_{suit}"] = ImageTk.PhotoImage(image)
+            except FileNotFoundError:
+                print(f"Image {image_path} not found.")
     
     return card_images
 
@@ -117,15 +120,27 @@ def create_game_page(root):
     deal_card(player_hand, card_images)
     deal_card(dealer_hand, card_images)
 
+    # Display initial cards for player and dealer
+    for card in player_hand:
+        card_image = card_images[card]
+        card_label = tk.Label(player_frame, image=card_image, bg="darkgreen")
+        card_label.image = card_image
+        card_label.pack(side="left", padx=10)
+
+    for card in dealer_hand:
+        card_image = card_images[card]
+        card_label = tk.Label(dealer_frame, image=card_image, bg="darkgreen")
+        card_label.image = card_image
+        card_label.pack(side="left", padx=10)
+
     # Knoppen
     button_frame = tk.Frame(game_frame, bg="darkgreen")
     button_frame.pack(pady=20)
 
     hit_button = tk.Button(button_frame, text="Hit", command=lambda: hit(game_frame, player_hand, card_images, player_frame), bg="white")
-    hit_button.grid(row=0, column=1, padx=5)
+    hit_button.grid(row=0, column=0, padx=5)
 
     stand_button = tk.Button(button_frame, text="Stand", command=lambda: stand(game_frame, dealer_hand, player_hand, card_images, dealer_frame, player_frame), bg="white")
-    stand_button.grid(row=0, column=2, padx=5)
+    stand_button.grid(row=0, column=1, padx=5)
 
     game_frame.pack(fill="both", expand=True)
-
