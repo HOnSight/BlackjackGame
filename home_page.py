@@ -1,41 +1,50 @@
 import tkinter as tk
-from PIL import Image, ImageTk
-from game_page import create_game_page  # Importeer de functie voor de gamepagina
-from rules import create_rules_page  # Zorg ervoor dat de regels correct worden aangeroepen
+from tkinter import ttk
+from package import BettingAppGUI, Player, set_dpi_awareness
 
-def create_home_page(root):
-    home_frame = tk.Frame(root, bg="darkgreen")
 
-    # Logo
-    try:
-        logo_image = Image.open("assets/logo.png").resize((200, 200))
-        logo_photo = ImageTk.PhotoImage(logo_image)
-        logo_label = tk.Label(home_frame, image=logo_photo, bg="darkgreen")
-        logo_label.image = logo_photo  # Bewaar referentie
-        logo_label.pack(pady=20)
-    except FileNotFoundError:
-        logo_label = tk.Label(home_frame, text="Logo hier", font=("Arial", 24), bg="darkgreen")
-        logo_label.pack(pady=20)
+set_dpi_awareness()
 
-    # Titel
-    title_label = tk.Label(home_frame, text="Blackjack!", font=("Arial", 24), bg="darkgreen", fg="white")
-    title_label.pack(pady=10)
 
-    # Start Game knop
-    start_button = tk.Button(home_frame, text="Start Game", command=lambda: show_game_page(root, home_frame), bg="white", font=("Arial", 16))
-    start_button.pack(pady=20)
+class GameInterface(tk.Tk):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.title("Blackjack Game")
+        self.geometry("1560x910")
+        self.resizable(False, False)
+        self.frames = dict()
 
-    # Knop naar de spelregels pagina
-    rules_button = tk.Button(home_frame, text="Bekijk Spelregels", command=lambda: show_rules_page(root, home_frame), bg="white", font=("Arial", 16))
-    rules_button.pack(pady=20)
+        style = ttk.Style()
+        style.theme_use('vista')
+        style.configure('Custom.TFrame', background='#007700', foreground='#FFFFFF')
+        style.configure('Custom.TButton', font=('Arial', 12), background='#007700')
+        style.configure('Custom.TLabel', background='#007700', font="Arial 14 bold")
 
-    # Voeg de home_frame toe aan het hoofdvenster
-    home_frame.pack(fill="both", expand=True)
+        container = ttk.Frame(self, style="Custom.TFrame")
+        container.pack(fill="both", expand=True)
+        container.grid_rowconfigure(0, weight=1)
+        container.grid_columnconfigure(0, weight=1)
 
-def show_game_page(root, home_frame):
-    home_frame.pack_forget()  # Verberg de Home-pagina
-    create_game_page(root)  # Laad de Game-pagina
+        self.pl = Player()
 
-def show_rules_page(root, home_frame):
-    home_frame.pack_forget()  # Verberg de Home-pagina
-    create_rules_page(root)  # Laad de spelregels-pagina
+        self.initial_bank_value = self.pl.bank
+
+        self.bank_value = self.pl.bank
+        self.bet_amount = 0
+
+        self.hasBetBeenPlaced = False
+        self.roundComplete = False
+
+        self.bettingFrame = BettingAppGUI(container, self)
+        self.bettingFrame.configure(height=910)
+        self.frames[BettingAppGUI] = self.bettingFrame
+        self.bettingFrame.grid(row=0, column=0, sticky="nsew")
+
+
+try:
+    game_interface = GameInterface()
+    game_interface.mainloop()
+except:
+    import traceback
+    traceback.print_exc()
+    input("Press Enter to end...")
