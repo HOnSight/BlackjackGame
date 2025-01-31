@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import PhotoImage
 from home_page import create_home_page
 
-# Root window
+# Root window   
 root = tk.Tk()
 root.title("Blackjack")
 root.geometry("800x600")
